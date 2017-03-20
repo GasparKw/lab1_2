@@ -15,12 +15,9 @@
  */
 package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
-import java.math.BigDecimal;
-import java.util.List;
 
-import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
-import pl.com.bottega.ecommerce.sales.domain.tax.Tax;
+import pl.com.bottega.ecommerce.sales.domain.tax.*;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 public class BookKeeper {
@@ -28,11 +25,21 @@ public class BookKeeper {
 	public Invoice issuance(InvoiceRequest request) {
 		Invoice invoice = InvoiceFactory.createInvoice(Id.generate(), request.getClient());
 
+		TaxCalculator taxCalculator = new TaxCalculator();
+		
 		for (RequestItem item : request.getItems()) {
 			
 			Money net = item.getTotalCost();
-			Tax tax = Tax.evaluateTax(item);
-	
+			switch (item.getProductData().getType()) {
+			case STANDARD:
+				taxCalculator.setTaxPolicy(new StandardTaxPolicy());
+			case DRUG:
+				taxCalculator.setTaxPolicy(new DrugTaxPolicy());
+			case FOOD:
+				taxCalculator.setTaxPolicy(new FoodTaxPolicy());
+			}
+			
+			Tax tax = taxCalculator.calculateTax(item);	
 			InvoiceLine invoiceLine = new InvoiceLine(item.getProductData(),
 					item.getQuantity(), net, tax);
 			invoice.addItem(invoiceLine);
