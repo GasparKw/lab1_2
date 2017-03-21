@@ -11,8 +11,8 @@ public class DrugTaxPolicy implements TaxPolicy {
 		Money net = item.getTotalCost();
 		BigDecimal ratio = null;
 		String desc = null;
-		ratio = BigDecimal.valueOf(0.23);
-		desc = "23%";					
+		ratio = BigDecimal.valueOf(0.05);
+		desc = "5% (D)";					
 		Money taxValue = net.multiplyBy(ratio);		
 		return new Tax(taxValue, desc);
 	}
