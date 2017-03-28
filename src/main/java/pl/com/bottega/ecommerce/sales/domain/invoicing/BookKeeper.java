@@ -22,24 +22,14 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 public class BookKeeper {
 
-	public Invoice issuance(InvoiceRequest request) {
+	public Invoice issuance(InvoiceRequest request, TaxPolicy taxPolicy) {
 		Invoice invoice = InvoiceFactory.createInvoice(Id.generate(), request.getClient());
-
-		TaxCalculator taxCalculator = new TaxCalculator();
 		
 		for (RequestItem item : request.getItems()) {
 			
 			Money net = item.getTotalCost();
-			switch (item.getProductData().getType()) {
-			case STANDARD:
-				taxCalculator.setTaxPolicy(new StandardTaxPolicy());
-			case DRUG:
-				taxCalculator.setTaxPolicy(new DrugTaxPolicy());
-			case FOOD:
-				taxCalculator.setTaxPolicy(new FoodTaxPolicy());
-			}
 			
-			Tax tax = taxCalculator.calculateTax(item);	
+			Tax tax = taxPolicy.calculateTax(item.getProductData().getType(), net);	
 			InvoiceLine invoiceLine = new InvoiceLine(item.getProductData(),
 					item.getQuantity(), net, tax);
 			invoice.addItem(invoiceLine);
