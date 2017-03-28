@@ -7,3 +7,5 @@ after.puml
 lab1_2.iml
 .gitignore
 
+src/main/main.iml
+.gitignore
